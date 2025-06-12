@@ -28,8 +28,8 @@ CREATE TABLE user (
   user_nickname VARCHAR(255) NOT NULL,
   user_last_logged_in DATETIME NOT NULL DEFAULT '2000-01-01 10:00:00',
   user_studied_days BIGINT NOT NULL DEFAULT 0,
-  user_total_reviews BIGINT NOT NULL DEFAULT 0,
-  user_completed_reviews BIGINT NOT NULL DEFAULT 0,
+  user_total_studys BIGINT NOT NULL DEFAULT 0,
+  user_completed_studys BIGINT NOT NULL DEFAULT 0,
   user_progress_rate DOUBLE NOT NULL DEFAULT 0.0,
   
   CHECK (user_role IN ('USER', 'ADMIN')),
@@ -65,22 +65,22 @@ CREATE TABLE subject (
   created_at DATETIME NOT NULL,
   user_id BIGINT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES user(user_id)
-) ENGINE=InnoDB COMMENT='과목' CHARACTER SET utf8mb4;
+) ENGINE=InnoDB COMMENT='과목' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE answer_files (
   file_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  file_name VARCHAR(255) NOT NULL,
-  file_content TEXT NULL,
-  file_type VARCHAR(255) NOT NULL,
-  file_url TEXT NULL,
+  file_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  file_content LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  file_type VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  file_url TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   created_at DATETIME NOT NULL,
   subject_id BIGINT NOT NULL,
   FOREIGN KEY (subject_id) REFERENCES subject(subject_id)
-) ENGINE=InnoDB COMMENT='답안 파일' CHARACTER SET utf8mb4;
+) ENGINE=InnoDB COMMENT='답안 파일' CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE exam_schedule (
   exam_schedule_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  exam_schedule_date DATETIME NOT NULL,
+  exam_schedule_date DATE NOT NULL,
   exam_schedule_name VARCHAR(255) NOT NULL,
   subject_id BIGINT NOT NULL,
   user_id BIGINT NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE exam_schedule (
 
 CREATE TABLE study_schedule (
   study_schedule_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  study_schedule_date DATETIME NOT NULL,
+  study_schedule_date DATE NOT NULL,
   study_schedule_completed VARCHAR(255) NOT NULL,
   study_schedule_created_at DATETIME NOT NULL,
   user_id BIGINT NOT NULL,
@@ -98,7 +98,9 @@ CREATE TABLE study_schedule (
   subject_id BIGINT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES user(user_id),
   FOREIGN KEY (file_id) REFERENCES answer_files(file_id),
-  FOREIGN KEY (subject_id) REFERENCES subject(subject_id)
+  FOREIGN KEY (subject_id) REFERENCES subject(subject_id),
+  
+  CHECK (study_schedule_completed IN ('COMP', 'UNCOMP'))
 ) ENGINE=InnoDB COMMENT='복습 일정' CHARACTER SET utf8mb4;
 
 CREATE TABLE studys (
